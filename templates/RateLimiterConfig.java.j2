@@ -1,0 +1,25 @@
+package {{ package_name }};
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@Configuration
+public class RateLimiterConfig {
+
+    @Bean
+    public LoadingCache<String, AtomicInteger> requestCountsPerIp() {
+        return CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, AtomicInteger>() {
+                @Override
+                public AtomicInteger load(String key) {
+                    return new AtomicInteger(0);
+                }
+            });
+    }
+} 

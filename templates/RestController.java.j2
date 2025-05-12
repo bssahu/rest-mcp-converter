@@ -1,0 +1,49 @@
+package {{ package_name }};
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import lombok.Data;
+import java.util.Map;
+import java.util.HashMap;
+
+@RestController
+@RequestMapping("/api")
+public class RestController {
+
+    {% for endpoint in endpoints %}
+    @RequestMapping(value = "{{ endpoint.path }}", method = RequestMethod.{{ endpoint.method }})
+    public ResponseEntity<{{ endpoint.response_type }}> {{ endpoint.method_name }}(
+        {% for param in endpoint.parameters %}
+        @{{ param.annotation }} {{ param.type }} {{ param.name }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ) {
+        // TODO: Implement business logic
+        {% if endpoint.response_type == 'Map' %}
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Endpoint {{ endpoint.path }} called successfully");
+        return ResponseEntity.ok(response);
+        {% else %}
+        return ResponseEntity.ok(new {{ endpoint.response_type }}());
+        {% endif %}
+    }
+
+    {% endfor %}
+}
+
+{% for model in endpoints|selectattr('request_type')|map(attribute='request_type')|unique %}
+@Data
+class {{ model }} {
+    // TODO: Add fields based on request schema
+}
+{% endfor %}
+
+{% for model in endpoints|selectattr('response_type')|map(attribute='response_type')|unique %}
+{% if model != 'Map' %}
+@Data
+class {{ model }} {
+    // TODO: Add fields based on response schema
+}
+{% endif %}
+{% endfor %} 

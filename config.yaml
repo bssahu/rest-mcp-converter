@@ -1,0 +1,31 @@
+project:
+  name: mcp-server
+  version: 1.0.0
+  package: com.example.mcp
+
+server:
+  port: 8080
+
+mcp:
+  version: 1.0.0
+  service:
+    name: mcp-service
+    description: "MCP Service generated from REST endpoint"
+  
+  security:
+    enabled: true
+    auth_type: "basic"  # basic, oauth2, jwt
+    
+  logging:
+    level: INFO
+    format: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    
+  monitoring:
+    enabled: true
+    metrics:
+      enabled: true
+      endpoint: "/actuator/metrics"
+    
+  tracing:
+    enabled: true
+    sampling_rate: 1.0 

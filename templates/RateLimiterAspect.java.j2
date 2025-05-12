@@ -1,0 +1,58 @@
+package {{ package_name }};
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import com.google.common.cache.LoadingCache;
+import java.util.concurrent.atomic.AtomicInteger;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+
+@Aspect
+@Component
+public class RateLimiterAspect {
+
+    private static final int MAX_REQUESTS_PER_MINUTE = 60;
+
+    @Autowired
+    private LoadingCache<String, AtomicInteger> requestCountsPerIp;
+
+    @Around("@annotation(org.springframework.web.bind.annotation.RequestMapping) || " +
+            "@annotation(org.springframework.web.bind.annotation.GetMapping) || " +
+            "@annotation(org.springframework.web.bind.annotation.PostMapping) || " +
+            "@annotation(org.springframework.web.bind.annotation.PutMapping) || " +
+            "@annotation(org.springframework.web.bind.annotation.DeleteMapping)")
+    public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String clientIp = getClientIP(request);
+        
+        if (isMaximumRequestsPerMinuteExceeded(clientIp)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", "Too many requests. Please try again later.");
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
+        }
+        
+        return joinPoint.proceed();
+    }
+
+    private boolean isMaximumRequestsPerMinuteExceeded(String clientIp) {
+        AtomicInteger counter = requestCountsPerIp.getUnchecked(clientIp);
+        return counter.incrementAndGet() > MAX_REQUESTS_PER_MINUTE;
+    }
+
+    private String getClientIP(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null) {
+            return request.getRemoteAddr();
+        }
+        return xfHeader.split(",")[0];
+    }
+} 

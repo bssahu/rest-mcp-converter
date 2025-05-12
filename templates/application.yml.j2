@@ -1,0 +1,41 @@
+server:
+  port: {{ server_port }}
+
+spring:
+  application:
+    name: {{ mcp_config.service.name }}
+  security:
+    user:
+      name: admin
+      password: ${MCP_ADMIN_PASSWORD:admin}
+  sleuth:
+    sampler:
+      probability: {{ mcp_config.tracing.sampling_rate }}
+  aop:
+    auto: true
+    proxy-target-class: true
+
+rate-limiter:
+  enabled: true
+  max-requests-per-minute: 60
+  window-size-minutes: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  tracing:
+    sampling:
+      probability: {{ mcp_config.tracing.sampling_rate }}
+
+logging:
+  level:
+    root: {{ mcp_config.logging.level }}
+    com.example.mcp: {{ mcp_config.logging.level }}
+  pattern:
+    console: {{ mcp_config.logging.format }} 
