@@ -4,7 +4,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![Java Version](https://img.shields.io/badge/java-17%2B-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 
-This utility converts REST API endpoints into MCP (Microservice Control Plane) servers using Spring Boot and Amazon Bedrock's Claude model. It provides a seamless way to transform existing REST APIs into well-structured, secure, and monitored microservices.
+This utility converts REST API endpoints into Model Context Protocol (MCP) servers using Spring Boot and Amazon Bedrock's Claude model. It provides a seamless way to transform existing REST APIs into well-structured, secure, and monitored MCP servers that can handle model context and interactions.
 
 ## Features
 
@@ -16,6 +16,8 @@ This utility converts REST API endpoints into MCP (Microservice Control Plane) s
 - 📝 Comprehensive logging
 - 🛡️ Fixed Window Counter rate limiting
 - 🔄 Request/Response transformation
+- 🤖 Model context management
+- 🔄 Context persistence and retrieval
 
 ## Prerequisites
 
@@ -29,7 +31,7 @@ This utility converts REST API endpoints into MCP (Microservice Control Plane) s
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/rest-mcp-converter.git
+git clone https://github.com/bssahu/rest-mcp-converter.git
 cd rest-mcp-converter
 ```
 
@@ -60,6 +62,7 @@ The tool uses a `config.yaml` file for configuration. You can customize the foll
 - Logging configuration
 - Monitoring and tracing settings
 - Rate limiting parameters
+- Model context settings
 
 Example configuration:
 ```yaml
@@ -75,7 +78,7 @@ mcp:
   version: 1.0.0
   service:
     name: mcp-service
-    description: "MCP Service generated from REST endpoint"
+    description: "MCP Service for model context management"
   
   security:
     enabled: true
@@ -85,6 +88,12 @@ mcp:
     enabled: true
     max-requests-per-minute: 60
     window-size-minutes: 1
+    
+  context:
+    storage:
+      type: "memory"  # or "database"
+      ttl: 3600  # context TTL in seconds
+    max_context_size: 1024  # maximum context size in KB
 ```
 
 ## Usage
@@ -115,6 +124,8 @@ The tool generates a Spring Boot project with the following features:
 - Micrometer metrics
 - Distributed tracing
 - Configurable logging
+- Model context management
+- Context persistence layer
 
 ### Running the MCP Server
 
@@ -157,6 +168,16 @@ The server implements a Fixed Window Counter algorithm for rate limiting:
 - Configurable through application.yml
 - Returns 429 (Too Many Requests) when limit is exceeded
 
+### Model Context Management
+
+The MCP server provides:
+
+- Context creation and storage
+- Context retrieval and updates
+- Context expiration management
+- Context size limits
+- Context persistence options
+
 ## Security Considerations
 
 1. Change the default admin password in production
@@ -166,6 +187,8 @@ The server implements a Fixed Window Counter algorithm for rate limiting:
 5. Configure CORS appropriately
 6. Regular security updates
 7. Monitor rate limiting metrics
+8. Secure context storage
+9. Implement context access controls
 
 ## Development
 
@@ -208,6 +231,7 @@ rest-mcp-converter/
    - Check application logs
    - Verify port availability
    - Review security configuration
+   - Check context storage configuration
 
 ## Contributing
 

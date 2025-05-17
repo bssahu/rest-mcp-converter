@@ -4,7 +4,7 @@
 """
 REST to MCP Converter
 
-This module provides functionality to convert REST API endpoints into MCP (Microservice Control Plane)
+This module provides functionality to convert REST API endpoints into Model Context Protocol (MCP)
 servers using Spring Boot and Amazon Bedrock's Claude model. It analyzes REST endpoints, generates
 appropriate configurations, and creates a Spring Boot project with the necessary components.
 
@@ -25,7 +25,7 @@ from typing import Dict, Any, Optional
 
 class RestToMcpConverter:
     """
-    A converter that transforms REST API endpoints into MCP servers.
+    A converter that transforms REST API endpoints into Model Context Protocol (MCP) servers.
     
     This class handles the entire conversion process, from analyzing REST endpoints
     to generating a complete Spring Boot project with MCP configuration.
